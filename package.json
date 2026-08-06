@@ -1,0 +1,19 @@
+{
+  "name": "devx",
+  "version": "1.0.0",
+  "description": "This is a social connection app for developers",
+  "keywords": [
+    "javascript"
+  ],
+  "license": "ISC",
+  "author": "Subhankar Karmakar",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
