@@ -4,7 +4,19 @@ const app = express();
 
 app.get("/user",(req,res)=> {
   // get call to DB to fetch user
-  res.send({"firstName": "Subhankar", "lastName": "Karmakar"});
+
+  // getting query params from the URL
+  console.log("user ID is ", req.query);
+  res.send({"firstName": "Subhankar", "lastName": "Karmakar" });
+
+});
+
+
+// Dynamic Routes
+app.get("/user/:userID/:userName/:city",(req,res)=> {
+  // get call to DB to fetch user
+  console.log("data is ", req.params);
+  res.send({"userID": req.params.userID, "userName": req.params.userName, "city": req.params.city});
 
 });
 
