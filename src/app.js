@@ -1,6 +1,14 @@
 const express = require("express");
 const app = express();
+const { adminAuth } = require("./middlewares/auth.js");
 
+
+// this is a middleware function which will be executed for every Admin request to the server
+app.use("/admin", adminAuth);
+
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All data fetched successfully");
+});
 
 app.get("/user",(req,res)=> {
   // get call to DB to fetch user
