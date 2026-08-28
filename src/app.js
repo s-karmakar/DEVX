@@ -36,6 +36,31 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
+// get all user from DB
+app.get("/getAllUsers", async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (error) {
+    res.status(400).send("Error fetching users " + error.message);
+  }
+});
+
+//find user by email
+app.get("/getUserByEmail", async (req, res) => {
+  const userEmail = req.body.email;
+  try {
+    // const user = await User.findOne({ email: userEmail });
+    const user = await User.find({ email: userEmail });
+    if (!user || user.length === 0) {
+      return res.status(404).send("User not found");
+    }
+    res.send(user);
+  } catch (error) {
+    res.status(400).send("Error fetching user " + error.message);
+  }
+});
+
 app.use("/", (err, req, res, next) => {
   if (err) {
     console.error(err);

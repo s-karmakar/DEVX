@@ -46,3 +46,5 @@
 - JS object vs JSON
 - add the express.json middleware to my app
 - make signup API dynamic
+- Model.find vs Model.findone . if theres 2 doc/data with same email id how will it behave?
+-
