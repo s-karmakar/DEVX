@@ -1,61 +1,59 @@
 const express = require("express");
+const User = require("./models/user");
+const { connectDB } = require("./config/database"); // this will connect to the database
 const app = express();
-const { adminAuth } = require("./middlewares/auth.js");
 
+app.use(express.json()); // this middleware given by express will parse the incoming request body to JSON format
 
-// this is a middleware function which will be executed for every Admin request to the server
-app.use("/admin", adminAuth);
+// singUp logic
+app.post("/signUp", async (req, res) => {
+  // Handle sign-up logic here
+  // const userOBJ = {
+  //   firstName: "subhankar",
+  //   lastName: "karmakar",
+  //   email: "subhankar@example.com",
+  //   password: "password123",
+  // };
+  //const user = new User(userOBJ);
 
-app.get("/admin/getAllData", (req, res) => {
-  res.send("All data fetched successfully");
+  // static user
+  // const user = new User({
+  //   firstName: "sharukh",
+  //   lastName: "paras",
+  //   email: "sharukhß@tendulkar.com",
+  //   password: "password123",
+  // });
+
+  //dynamic user
+  const user = new User(req.body);
+  console.log("user is getting created", user);
+  try {
+    await user.save();
+    res.send("User created successfully!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error creating user " + error.message);
+  }
 });
 
-app.get("/user",(req,res)=> {
-  // get call to DB to fetch user
-
-  // getting query params from the URL
-  console.log("user ID is ", req.query);
-  res.send({"firstName": "Subhankar", "lastName": "Karmakar" });
-
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    console.error(err);
+    res.status(500).send("Something went wrong!");
+  }
 });
-
-
-// Dynamic Routes
-app.get("/user/:userID/:userName/:city",(req,res)=> {
-  // get call to DB to fetch user
-  console.log("data is ", req.params);
-  res.send({"userID": req.params.userID, "userName": req.params.userName, "city": req.params.city});
-
-});
-
-app.post("/user", (req, res) => {
-  // post call to DB to create user
-
-  // saving data to DB
-  res.send("Data created successfully");
-});
-
-
-app.delete("/user", (req, res) => {
-  // delete call to DB to delete user
-
-  // saving data to DB
-  res.send("Data deleted successfully");
-});
-
-
-// this fn is known as middleware as well Request Handeler  ROUTE HANDLER
-// the sequence of the Rout handlers is important as the first matching route will be executed and the rest will be ignored
-app.use("/", (req, res) => {
-  res.send("Hello from express server");
-});
-
 
 // this is creating an instance of express server and listening to port 7777
-app.listen(7777, () => {
-  console.log("Server is running port 7777");
-});
-
+connectDB()
+  .then(() => {
+    console.log("DB connected successfully");
+    app.listen(7777, () => {
+      console.log("Server is running port 7777");
+    });
+  })
+  .catch((err) => {
+    console.log("DB connection failed", err);
+  });
 
 /**
  * by default whenever we hit any URL in the browser it will be a GET request, if we want to make a POST request we can use postman or any other tool to make a POST request
