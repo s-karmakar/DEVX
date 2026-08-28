@@ -47,4 +47,9 @@
 - add the express.json middleware to my app
 - make signup API dynamic
 - Model.find vs Model.findone . if theres 2 doc/data with same email id how will it behave?
+- delete api
+- find the diff between Patch and Put
+- update user API
+- Explore Mongoose API models
+
 -

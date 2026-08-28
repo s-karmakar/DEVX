@@ -61,6 +61,42 @@ app.get("/getUserByEmail", async (req, res) => {
   }
 });
 
+// delete user by email
+app.delete("/deleteUserByEmail", async (req, res) => {
+  const userEmail = req.body.email;
+  try {
+    const deletedUser = await User.deleteOne({ email: userEmail });
+    if (!deletedUser.deletedCount) {
+      console.log(deletedUser);
+      return res.status(404).send("User not found to delete");
+    }
+    console.log(deletedUser);
+    res.send("User deleted successfully");
+  } catch (error) {
+    res.status(400).send("Error deleting user " + error.message);
+  }
+});
+
+// update user by email
+app.patch("/updateUserByEmail", async (req, res) => {
+  const userEmail = req.body.email;
+  const updateData = req.body;
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { email: userEmail },
+      updateData,
+      { runValidators: true },
+    );
+    console.log(updatedUser);
+    if (!updatedUser) {
+      return res.status(404).send("User not found to update");
+    }
+    res.send("User updated successfully");
+  } catch (error) {
+    res.status(400).send("Error updating user " + error.message);
+  }
+});
+
 app.use("/", (err, req, res, next) => {
   if (err) {
     console.error(err);
