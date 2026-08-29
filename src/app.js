@@ -78,10 +78,34 @@ app.delete("/deleteUserByEmail", async (req, res) => {
 });
 
 // update user by email
-app.patch("/updateUserByEmail", async (req, res) => {
-  const userEmail = req.body.email;
+app.patch("/updateUserByEmail/:email", async (req, res) => {
+  const userEmail = req.params?.email;
   const updateData = req.body;
+
+  // API Level Validation
   try {
+    const ALLOWED_UPDATES = [
+      "firstName",
+      "lastName",
+      "password",
+      "age",
+      "about",
+      "skills",
+      "photoURL",
+    ];
+    const isUpdateAllowed = Object.keys(updateData).every((key) =>
+      ALLOWED_UPDATES.includes(key),
+    );
+    if (!isUpdateAllowed) {
+      throw new Error(
+        "Invalid updates! Only firstName, lastName, password, age, about, skills, and photoURL can be updated.",
+      );
+    }
+
+    if (updateData?.skills?.length > 10) {
+      throw new Error("Skills  cannot have more than 10 items.");
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { email: userEmail },
       updateData,
@@ -93,7 +117,7 @@ app.patch("/updateUserByEmail", async (req, res) => {
     }
     res.send("User updated successfully");
   } catch (error) {
-    res.status(400).send("Error updating user " + error.message);
+    res.status(400).send("Error updating user : " + error.message);
   }
 });
 
