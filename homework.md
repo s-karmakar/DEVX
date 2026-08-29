@@ -58,4 +58,8 @@
 - add API level validation to PATCH request & sigUP POST api
 - Data sanitization - add api level validation for each field
 - diff between API level validation and DB level validation. what is the point of same validation in both place ?????
+
+- using validator.js npm library for validation
+- used validator fn for password , email and photoURl and others
+- never trust req.body
 -

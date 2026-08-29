@@ -32,7 +32,7 @@ app.post("/signUp", async (req, res) => {
     res.send("User created successfully!");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error creating user " + error.message);
+    res.status(500).send("Error creating user: " + error.message);
   }
 });
 
