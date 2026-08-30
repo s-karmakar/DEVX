@@ -64,4 +64,18 @@
 - never trust req.body
 
 - ENCRIPTION and PASSWORD
+- validate data in signup api
+- create password hash using bcrypt library and used bcrypt.hash & bcrypt.compare
+- login api
+
+- Authentication & JWT
+- install cookie-parser lib
+- just send dummy cookie to user and check in postman
+- create a get profile API & check if you get the cookie back
+- install jsonwebtoken lib by auth0 to create validate JWT tokens
+- in login API, after email and password validation , create a JWT token & send it to user
+- read the cookie inside profile API and find the logIN user
+- ?? how the cookies get automatically sent in getProfile API after initial logIn
+
+- auth Middleware
 -

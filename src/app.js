@@ -3,9 +3,12 @@ const User = require("./models/user");
 const { validateSignUpData, validateLoginData } = require("./utils/validation");
 const { connectDB } = require("./config/database"); // this will connect to the database
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json()); // this middleware given by express will parse the incoming request body to JSON format
+app.use(cookieParser()); // this middleware will parse the cookies from the incoming request
 
 // singUp logic
 app.post("/signUp", async (req, res) => {
@@ -47,12 +50,37 @@ app.post("/login", async (req, res) => {
     // check if the provided password matches the hashed password in the database
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (isPasswordMatch) {
+      // create a JWT token
+      const token = jwt.sign({ _id: user._id }, "DevX@1234Pass");
+
+      // add the JWT Token to cookie & send the response back to user
+      res.cookie("token", token);
       res.send("Login successful!");
     } else {
       throw new Error("Invalid password.");
     }
   } catch (error) {
+    res.clearCookie("token");
     res.status(400).send("Error logging in: " + error.message);
+  }
+});
+
+// profile logic : get all info about my profile
+app.get("/getProfile", async (req, res) => {
+  try {
+    const { token } = req?.cookies;
+    if (!token) {
+      throw new Error("Invalid Credentials.");
+    }
+    // verify the token and get the user from it
+    const decodedToken = await jwt.verify(token, "DevX@1234Pass");
+    const user = await User.findById(decodedToken._id);
+    if (!user) {
+      throw new Error("User not found with the provided token.");
+    }
+    res.send(user);
+  } catch (error) {
+    res.status(400).send("Error getting profile: " + error.message);
   }
 });
 
