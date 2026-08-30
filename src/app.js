@@ -1,38 +1,58 @@
 const express = require("express");
 const User = require("./models/user");
+const { validateSignUpData, validateLoginData } = require("./utils/validation");
 const { connectDB } = require("./config/database"); // this will connect to the database
-const app = express();
+const bcrypt = require("bcrypt");
 
+const app = express();
 app.use(express.json()); // this middleware given by express will parse the incoming request body to JSON format
 
 // singUp logic
 app.post("/signUp", async (req, res) => {
-  // Handle sign-up logic here
-  // const userOBJ = {
-  //   firstName: "subhankar",
-  //   lastName: "karmakar",
-  //   email: "subhankar@example.com",
-  //   password: "password123",
-  // };
-  //const user = new User(userOBJ);
-
-  // static user
-  // const user = new User({
-  //   firstName: "sharukh",
-  //   lastName: "paras",
-  //   email: "sharukhß@tendulkar.com",
-  //   password: "password123",
-  // });
-
-  //dynamic user
-  const user = new User(req.body);
-  console.log("user is getting created", user);
   try {
+    //Validation of data
+    validateSignUpData(req);
+
+    // Encrypt the password before saving to the database
+    const saltRounds = 10;
+    const { password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    //dynamic user
+    const user = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hashedPassword, // Store the hashed password
+    });
     await user.save();
     res.send("User created successfully!");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error creating user: " + error.message);
+    res.status(400).send("ERROR: " + error.message);
+  }
+});
+
+//login logic
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    validateLoginData(email, password);
+    // 1st step is to check whether the email with any user exists in the database or not, if not then we will throw an error
+    // if the user present then we will get the user obj and then we will compare the password with the hashed password stored in the database using bcrypt.compare() method
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("User not found with the provided email.");
+    }
+    // check if the provided password matches the hashed password in the database
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (isPasswordMatch) {
+      res.send("Login successful!");
+    } else {
+      throw new Error("Invalid password.");
+    }
+  } catch (error) {
+    res.status(400).send("Error logging in: " + error.message);
   }
 });
 

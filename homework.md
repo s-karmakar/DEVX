@@ -62,4 +62,6 @@
 - using validator.js npm library for validation
 - used validator fn for password , email and photoURl and others
 - never trust req.body
+
+- ENCRIPTION and PASSWORD
 -
