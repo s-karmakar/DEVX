@@ -5,6 +5,7 @@ const { connectDB } = require("./config/database"); // this will connect to the 
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth.js");
 
 const app = express();
 app.use(express.json()); // this middleware given by express will parse the incoming request body to JSON format
@@ -66,15 +67,9 @@ app.post("/login", async (req, res) => {
 });
 
 // profile logic : get all info about my profile
-app.get("/getProfile", async (req, res) => {
+app.get("/getProfile", userAuth, async (req, res) => {
   try {
-    const { token } = req?.cookies;
-    if (!token) {
-      throw new Error("Invalid Credentials.");
-    }
-    // verify the token and get the user from it
-    const decodedToken = await jwt.verify(token, "DevX@1234Pass");
-    const user = await User.findById(decodedToken._id);
+    const user = req.user;
     if (!user) {
       throw new Error("User not found with the provided token.");
     }

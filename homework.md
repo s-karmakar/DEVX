@@ -78,4 +78,5 @@
 - ?? how the cookies get automatically sent in getProfile API after initial logIn
 
 - auth Middleware
+- userAuth Middleware
 -
