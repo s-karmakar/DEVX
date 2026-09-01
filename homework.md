@@ -78,5 +78,6 @@
 - ?? how the cookies get automatically sent in getProfile API after initial logIn
 
 - auth Middleware
-- userAuth Middleware
+- userAuth Middleware in profile and a new sendConnectionRequest API
+- set the expiry of JWT token to 7 days
 -

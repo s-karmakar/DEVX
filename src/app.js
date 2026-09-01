@@ -49,13 +49,13 @@ app.post("/login", async (req, res) => {
       throw new Error("User not found with the provided email.");
     }
     // check if the provided password matches the hashed password in the database
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await user.validatePassword(password);
     if (isPasswordMatch) {
-      // create a JWT token
-      const token = jwt.sign({ _id: user._id }, "DevX@1234Pass");
+      // get the JWT token
+      const token = await user.getJWT();
 
       // add the JWT Token to cookie & send the response back to user
-      res.cookie("token", token);
+      res.cookie("token", token, { expiresIn: "7D" });
       res.send("Login successful!");
     } else {
       throw new Error("Invalid password.");
@@ -79,88 +79,14 @@ app.get("/getProfile", userAuth, async (req, res) => {
   }
 });
 
-// get all user from DB
-app.get("/getAllUsers", async (req, res) => {
+// sendConnect API to send connection request to another user
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
   try {
-    const users = await User.find({});
-    res.send(users);
+    const user = req.user;
+    console.log("sending connection request from user:", user.email);
+    res.send(user.firstName + ", Connection request sent successfully!");
   } catch (error) {
-    res.status(400).send("Error fetching users " + error.message);
-  }
-});
-
-//find user by email
-app.get("/getUserByEmail", async (req, res) => {
-  const userEmail = req.body.email;
-  try {
-    // const user = await User.findOne({ email: userEmail });
-    const user = await User.find({ email: userEmail });
-    if (!user || user.length === 0) {
-      return res.status(404).send("User not found");
-    }
-    res.send(user);
-  } catch (error) {
-    res.status(400).send("Error fetching user " + error.message);
-  }
-});
-
-// delete user by email
-app.delete("/deleteUserByEmail", async (req, res) => {
-  const userEmail = req.body.email;
-  try {
-    const deletedUser = await User.deleteOne({ email: userEmail });
-    if (!deletedUser.deletedCount) {
-      console.log(deletedUser);
-      return res.status(404).send("User not found to delete");
-    }
-    console.log(deletedUser);
-    res.send("User deleted successfully");
-  } catch (error) {
-    res.status(400).send("Error deleting user " + error.message);
-  }
-});
-
-// update user by email
-app.patch("/updateUserByEmail/:email", async (req, res) => {
-  const userEmail = req.params?.email;
-  const updateData = req.body;
-
-  // API Level Validation
-  try {
-    const ALLOWED_UPDATES = [
-      "firstName",
-      "lastName",
-      "password",
-      "age",
-      "about",
-      "skills",
-      "photoURL",
-    ];
-    const isUpdateAllowed = Object.keys(updateData).every((key) =>
-      ALLOWED_UPDATES.includes(key),
-    );
-    if (!isUpdateAllowed) {
-      throw new Error(
-        "Invalid updates! Only firstName, lastName, password, age, about, skills, and photoURL can be updated.",
-      );
-    }
-
-    if (updateData?.skills?.length > 10) {
-      throw new Error("Skills  cannot have more than 10 items.");
-    }
-
-    const updatedUser = await User.findOneAndUpdate(
-      { email: userEmail },
-      updateData,
-      { runValidators: true },
-    );
-    console.log(updatedUser);
-    if (!updatedUser) {
-      return res.status(404).send("User not found to update");
-    }
-    res.send("User updated successfully");
-  } catch (error) {
-    res.status(400).send("Error updating user : " + error.message);
+    res.status(400).send("Error sending connection request: " + error.message);
   }
 });
 
@@ -171,7 +97,8 @@ app.use("/", (err, req, res, next) => {
   }
 });
 
-// this is creating an instance of express server and listening to port 7777
+// this is creating an instance of express server and listening to port: 7777
+
 connectDB()
   .then(() => {
     console.log("DB connected successfully");
