@@ -80,4 +80,10 @@
 - auth Middleware
 - userAuth Middleware in profile and a new sendConnectionRequest API
 - set the expiry of JWT token to 7 days
--
+
+- refactored the app usiing express.router
+- creted routes folder for different logical router like auth router, profile router, request router etc
+- import this routers in app.js
+- create post logout api
+- create patch /profile/edit api
+- create patch /profile/password api => forgot password api
