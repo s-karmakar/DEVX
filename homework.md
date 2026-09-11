@@ -87,3 +87,7 @@
 - create post logout api
 - create patch /profile/edit api
 - create patch /profile/password api => forgot password api
+
+- logical DB query
+
+-

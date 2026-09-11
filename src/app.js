@@ -10,11 +10,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 const profileRouter = require("./routes/profile");
-const connectionRequestRouter = require("./routes/requests");
+const requestRouter = require("./routes/requests");
 const authRouter = require("./routes/authentication");
 
 app.use("/", profileRouter);
-app.use("/", connectionRequestRouter);
+app.use("/", requestRouter);
 app.use("/", authRouter);
 
 app.use("/", (err, req, res, next) => {
