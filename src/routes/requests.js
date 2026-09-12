@@ -3,8 +3,9 @@ const requestRouter = express.Router();
 const User = require("../models/user");
 const { userAuth } = require("../middlewares/auth.js");
 const ConnectionRequest = require("../models/connectionRequest");
+const mongoose = require("mongoose");
 
-// sendConnect API to send connection request to another user
+// sending connection request to other user
 requestRouter.post(
   "/request/send/:status/:userID",
   userAuth,
@@ -30,13 +31,12 @@ requestRouter.post(
       }
 
       // toUser Validation
+      // if (typeof toUserID !== mongoose.Schema.Types.ObjectId) {
+      //   throw new Error("Invalid UserID format");
+      // }
       const toUser = await User.findById(toUserID);
       if (!toUser) {
         throw new Error("User not found with ID: " + toUserID);
-      }
-      // self request validation
-      if (fromUserID.equals(toUserID)) {
-        throw new Error("Cannot send request to self");
       }
 
       // already exist same connect request between users
@@ -57,12 +57,54 @@ requestRouter.post(
       });
       const data = await connectionRequest.save();
 
-      res
-        .status(201)
-        .json({
-          message: `${req.user.firstName}  ${status} in ${toUser.firstName}`,
-          data,
-        });
+      res.status(201).json({
+        message: `${req.user.firstName}  ${status} in ${toUser.firstName}`,
+        data,
+      });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  },
+);
+
+// reviewing connection request from other user
+requestRouter.post(
+  "/request/review/:status/:requestID",
+  userAuth,
+  async (req, res) => {
+    try {
+      // validate the status
+      // validate the requestID
+      // toUserID should be logged in user
+
+      const loggedInUser = req.user;
+      const { status, requestID } = req.params;
+      const allowedStatus = ["accepted", "rejected"];
+
+      if (!allowedStatus.includes(status)) {
+        throw new Error("Invalid status type: " + status);
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(requestID)) {
+        throw new Error("Invalid requestID format");
+      }
+
+      //connection request validation
+      const connectionRquest = await ConnectionRequest.findOne({
+        _id: requestID,
+        toUserID: loggedInUser._id,
+        status: "interested",
+      });
+      if (!connectionRquest) {
+        throw new Error("No  pending connection request found");
+      }
+
+      connectionRquest.status = status;
+      const data = await connectionRquest.save();
+      res.status(200).json({
+        message: `Connection request ${status} successfully`,
+        data,
+      });
     } catch (err) {
       res.status(400).json({ message: err.message });
     }

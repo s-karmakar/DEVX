@@ -18,15 +18,16 @@
 
 ## connectionRequestRouter
 
-- POST /request/send/interested/:userID
-- POST /request/send/ignored/:userID
-  => POST /request/send/:status/:userID
+- POST /request/send/interested/:userID ❌
+- POST /request/send/ignored/:userID ❌
+  => POST /request/send/:status/:userID ✅
 
-- POST /request/review/accepted/:requestID
-- POST /request/review/rejected/:requestID
+- POST /request/review/accepted/:requestID ❌
+- POST /request/review/rejected/:requestID ❌
+  => /request/review/:status/:requestID ✅
 
 ## userRouter
 
 - GET /user/feed - gets you profiles of other users in application
 - GET /user/connections
-- GET /user/requests
+- GET /user/request/received. ✅

@@ -90,4 +90,13 @@
 
 - logical DB query
 
+- schema.pre()
+- indexes in mongo DB & compound index
+- advantages & disadvantages of Indexes
+- : ref populate
+- $or and $and mongodb Query
+- why sometime refering to Mongoose and sometime to mongoDb while building the project
+-
+
+- ref populate and thought process to write API
 -
