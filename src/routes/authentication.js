@@ -7,7 +7,15 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 
 const authRouter = express.Router();
-
+const USER_SAFE_DATA = [
+  "firstName",
+  "lastName",
+  "photoURL",
+  "age",
+  "gender",
+  "about",
+  "skills",
+];
 // singUp logic
 authRouter.post("/signUp", async (req, res) => {
   try {
@@ -26,8 +34,11 @@ authRouter.post("/signUp", async (req, res) => {
       email: req.body.email,
       password: hashedPassword, // Store the hashed password
     });
-    await user.save();
-    res.send("User created successfully!");
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+    // add the JWT Token to cookie & send the response back to user
+    res.cookie("token", token, { expiresIn: "7D" });
+    res.json({ message: "User Created successful", data: savedUser });
   } catch (error) {
     console.error(error);
     res.status(400).send("ERROR: " + error.message);
@@ -53,7 +64,7 @@ authRouter.post("/login", async (req, res) => {
 
       // add the JWT Token to cookie & send the response back to user
       res.cookie("token", token, { expiresIn: "7D" });
-      res.send("Login successful!");
+      res.json({ message: "login successful", data: user });
     } else {
       throw new Error("Invalid password.");
     }
@@ -68,7 +79,8 @@ authRouter.post("/logout", async (req, res) => {
   // res.clearCookie("token");
   // res.send("Logout successful!");
   //both are same way
-  res.cookie("token", null, { expires: new Date(Date.now()) });
+  // res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.clearCookie("token");
   res.send("Logout successful!");
 });
 
